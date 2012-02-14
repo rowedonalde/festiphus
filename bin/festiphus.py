@@ -1,97 +1,109 @@
 #festiphus.py
-#Main script for Festiphus
+#Main script for Festiphus, ported to Tkinter for GUI support
 
-import pygtk
-pygtk.require('2.0')
-import gtk
+from Tkinter import *
 import ftplib
+from pyftpdlib import ftpserver
+
+SERVER_IP = '127.0.0.1'
+SERVER_PORT = 21
 
 #instance for a Festiphus session:
-class Festiphus:
-    
+class Festiphus(Frame):
+
+    ###############Client#################
     #FTP sessions in this instance of Festiphus
     #At first, I'll support 1, but this should be able to grow
     sessions = []
-    
+
     #Initiate an FTP connection:
-    def open_connection(self, address, name):
-        new_conn = ftplib.FTP(address, name)
+    def open_connection(self, address, name, password):
+        new_conn = ftplib.FTP(address, name, password)
         self.sessions.append(new_conn)
         self.refresh_file_browser(new_conn)
-        
+
     #Use the input to trigger an open_connection:
-    def submit_connection(self, widget, data = None):
-        address = self.host_input.get_text()
-        name = self.name_input.get_text()
-        self.open_connection(address, name)
+    def submit_connection(self):
+        address = self.host_input.get()
+        name = self.name_input.get()
+        password = self.password_input.get()
+        self.open_connection(address, name, password)
+
+    #Refresh the file browser and the directory name:
+    def refresh_file_browser(self, conn):
+        #Set the new current directory:
+        self.current_dir.set(conn.pwd())
+
+        #display the directory contents:
+        self.file_list = conn.nlst() #debating whether this should be in class
+        #self.file_browser.insert(0, self.file_list)
+        for f in self.file_list:
+            self.file_browser.insert(0, f)
     
-    #Use these to close the app window:
-    def delete_event(self, widget, event, data = None):
-        print "delete event occurred"
-        return False     
-    def destroy(self, widget, data = None):
-        gtk.main_quit()
-        
-    #Populates the file browser:
-    #Right now it's pretty non-interactive: it just shows the
-    #response code from the LIST request
-    def refresh_file_browser(self, session):
-        #Get the contents (essentially run ls):
-        contents = session.retrlines('LIST')
-        
-        #Display the contents:
-        self.file_browser.set_text(contents)
     
-    def __init__(self):
-        #the window it takes place in:
-        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.window.connect("destroy", self.destroy)
-        self.window.set_border_width(10)
+    #################Server#################
+    #Initializes the server
+    #This is going to have to run in a different thread, since the mainloop
+    #needs to keep running
+    def start_server(self):
+        #Set up auths for the server:
+        authorizer = ftpserver.DummyAuthorizer()
+        #Right now, just set up a user with the following vars
+        #This user can read and move around--that's pretty much it
+        authorizer.add_user('don', 'pass', '/private/var/root', msg_login = 'SUP BRO')
+        #Set up the handler and provide it with the previous authorizer:
+        handler = ftpserver.FTPHandler
+        handler.authorizer = authorizer
+        address = (SERVER_IP, SERVER_PORT)
         
-        #Destroyer listener. Closes the app window:
-        self.window.connect("destroy", self.destroy)
+        #connect the handler to the address and fire up the server:
+        self.ftpd = ftpserver.FTPServer(address, handler)
+        self.ftpd.serve_forever()
+    
+
+    ################GUI######################
+    #Build the widgets
+    def createWidgets(self):
+
+        #host entry:
+        self.host_input = Entry(self)
+        self.host_input.grid(column = 0, row = 0)
+
+        #name entry:
+        self.name_input = Entry(self)
+        self.name_input.grid(column = 1, row = 0)
+
+        #password entry:
+        self.password_input = Entry(self, show = '*')
+        self.password_input.grid(column = 2, row = 0)
         
-        #Host input, Name input, and connect button:
-        self.host_input = gtk.Entry()
-        self.name_input = gtk.Entry()
-        self.connect_button = gtk.Button("Connect")
+        #connect button:
+        self.connect_button = Button(self, text = 'Connect',
+                                     command = self.submit_connection)
+        self.connect_button.grid(column = 3, row = 0)
+
+        #current directory:
+        self.current_dir = StringVar() #dir_label will follow this
+        self.dir_label = Label(self, textvariable = self.current_dir)
+        self.dir_label.grid(row = 1)
+
+        #file browser:
+        self.file_browser = Listbox(self)
+        self.file_browser.grid(columnspan = 4, column = 0, row = 2)
+    
+    ###################Fire it up!#################
+    def __init__(self, master = None):
         
-        #Set the callback for the Connect Button:
-        self.connect_button.connect('clicked', self.submit_connection, None)
+        #Initialize GUI
+        Frame.__init__(self, master)
+        self.grid()
+        self.createWidgets()
         
-        #hbox for host/name/connect:
-        self.conn_box = gtk.HBox(False, 0)
-        self.conn_box.pack_start(self.host_input)
-        self.conn_box.pack_start(self.name_input)
-        self.conn_box.pack_start(self.connect_button)
-        
-        #show host/name/connect inputs:
-        self.host_input.show()
-        self.name_input.show()
-        self.connect_button.show()
-        self.conn_box.show()
-        
-        #File Browser:
-        #Right now it's just text describing the files
-        self.file_browser = gtk.Label('')
-        self.file_browser.show()
-        
-        #Since the window can only hold 1 widget directly, put the file
-        #browser and the conn_box in an hbox:
-        self.container = gtk.VBox(False, 0)
-        self.container.pack_start(self.conn_box)
-        self.container.pack_start(self.file_browser)
-        self.window.add(self.container)
-        self.container.show()
-        
-        #Show the window:
-        self.window.show()
-        
-    #Necessary to run:
-    def main(self):
-        gtk.main()
-        
-#Fire the whole thing up:
-if __name__ == '__main__':
-    fest = Festiphus()
-    fest.main()
+        #Start server:
+        #self.start_server()
+        #Just going to run this in a separate python process until I get
+        #the threading working
+
+app = Festiphus()
+app.master.title("Festiphus")
+app.mainloop()

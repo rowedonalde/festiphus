@@ -1,0 +1,2 @@
+pyftpdlib==0.7.0
+wsgiref==0.1.2
