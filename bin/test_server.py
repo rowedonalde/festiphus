@@ -5,13 +5,13 @@
 from pyftpdlib import ftpserver
 
 SERVER_IP = '127.0.0.1'
-SERVER_PORT = 21
+SERVER_PORT = 3000
 
 #Set up auths for the server:
 authorizer = ftpserver.DummyAuthorizer()
 #Right now, just set up a user with the following vars
 #This user can read and move around--that's pretty much it
-authorizer.add_user('don', 'pass', '/private/var/root', msg_login = 'SUP BRO')
+authorizer.add_user('don', 'pass', '.', msg_login = 'SUP BRO')
 #Set up the handler and provide it with the previous authorizer:
 handler = ftpserver.FTPHandler
 handler.authorizer = authorizer

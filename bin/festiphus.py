@@ -4,9 +4,10 @@
 from Tkinter import *
 import ftplib
 from pyftpdlib import ftpserver
+from threading import Thread
 
 SERVER_IP = '127.0.0.1'
-SERVER_PORT = 21
+SERVER_PORT = 3001
 
 #instance for a Festiphus session:
 class Festiphus(Frame):
@@ -50,7 +51,8 @@ class Festiphus(Frame):
         authorizer = ftpserver.DummyAuthorizer()
         #Right now, just set up a user with the following vars
         #This user can read and move around--that's pretty much it
-        authorizer.add_user('don', 'pass', '/private/var/root', msg_login = 'SUP BRO')
+        #authorizer.add_user('don', 'pass', '/private/var/root', msg_login = 'SUP BRO')
+        authorizer.add_user('don', 'pass', '.', msg_login = 'SUP BRO')
         #Set up the handler and provide it with the previous authorizer:
         handler = ftpserver.FTPHandler
         handler.authorizer = authorizer
@@ -93,16 +95,16 @@ class Festiphus(Frame):
     
     ###################Fire it up!#################
     def __init__(self, master = None):
+    
+        #Put the server in its own thread:
+        self.server_thread = Thread(target = self.start_server)
+        #Start the server:
+        self.server_thread.start()
         
         #Initialize GUI
         Frame.__init__(self, master)
         self.grid()
         self.createWidgets()
-        
-        #Start server:
-        #self.start_server()
-        #Just going to run this in a separate python process until I get
-        #the threading working
 
 app = Festiphus()
 app.master.title("Festiphus")
