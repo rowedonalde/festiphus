@@ -97,14 +97,25 @@ class Festiphus(Frame):
     def __init__(self, master = None):
     
         #Put the server in its own thread:
-        self.server_thread = Thread(target = self.start_server)
+        class Server_Thread(Thread):
+            def __init__(self, parent):
+                self.parent = parent
+        
+            def run(self):
+                parent.start_server()
+        
+        #self.server_thread = Thread(target = self.start_server)
+        self.server_thread = Server_Thread()
+        self.server_thread.__init__(self)
         #Start the server:
         self.server_thread.start()
+        
         
         #Initialize GUI
         Frame.__init__(self, master)
         self.grid()
         self.createWidgets()
+            
 
 app = Festiphus()
 app.master.title("Festiphus")
