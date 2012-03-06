@@ -7,7 +7,7 @@ from pyftpdlib import ftpserver
 from threading import Thread
 
 SERVER_IP = '127.0.0.1'
-SERVER_PORT = 3001
+SERVER_PORT = 3005
 
 #instance for a Festiphus session:
 class Festiphus(Frame):
@@ -18,17 +18,20 @@ class Festiphus(Frame):
     sessions = []
 
     #Initiate an FTP connection:
-    def open_connection(self, address, name, password):
-        new_conn = ftplib.FTP(address, name, password)
+    def open_connection(self, host, port, name, password):
+        new_conn = ftplib.FTP()
+        new_conn.connect(host, port)
+        new_conn.login(name, password)
         self.sessions.append(new_conn)
         self.refresh_file_browser(new_conn)
 
     #Use the input to trigger an open_connection:
     def submit_connection(self):
-        address = self.host_input.get()
+        host = self.host_input.get()
+        port = self.port_input.get()
         name = self.name_input.get()
         password = self.password_input.get()
-        self.open_connection(address, name, password)
+        self.open_connection(host, port, name, password)
 
     #Refresh the file browser and the directory name:
     def refresh_file_browser(self, conn):
@@ -70,19 +73,23 @@ class Festiphus(Frame):
         #host entry:
         self.host_input = Entry(self)
         self.host_input.grid(column = 0, row = 0)
+        
+        #port entry:
+        self.port_input = Entry(self)
+        self.port_input.grid(column = 1, row = 0)
 
         #name entry:
         self.name_input = Entry(self)
-        self.name_input.grid(column = 1, row = 0)
+        self.name_input.grid(column = 2, row = 0)
 
         #password entry:
         self.password_input = Entry(self, show = '*')
-        self.password_input.grid(column = 2, row = 0)
+        self.password_input.grid(column = 3, row = 0)
         
         #connect button:
         self.connect_button = Button(self, text = 'Connect',
                                      command = self.submit_connection)
-        self.connect_button.grid(column = 3, row = 0)
+        self.connect_button.grid(column = 4, row = 0)
 
         #current directory:
         self.current_dir = StringVar() #dir_label will follow this
@@ -97,16 +104,16 @@ class Festiphus(Frame):
     def __init__(self, master = None):
     
         #Put the server in its own thread:
-        class Server_Thread(Thread):
-            def __init__(self, parent):
-                self.parent = parent
+        #class Server_Thread(Thread):
+        #    def __init__(self, parent):
+        #        self.parent = parent
+        #
+        #    def run(self):
+        #        parent.start_server()
         
-            def run(self):
-                parent.start_server()
-        
-        #self.server_thread = Thread(target = self.start_server)
-        self.server_thread = Server_Thread()
-        self.server_thread.__init__(self)
+        self.server_thread = Thread(target = self.start_server)
+        #self.server_thread = Server_Thread()
+        #self.server_thread.__init__(self)
         #Start the server:
         self.server_thread.start()
         
