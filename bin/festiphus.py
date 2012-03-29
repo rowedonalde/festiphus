@@ -7,8 +7,14 @@ import ftplib
 from pyftpdlib import ftpserver
 from threading import Thread
 
+#Server setting constants:
 SERVER_IP = '127.0.0.1'
 SERVER_PORT = 3001
+
+#GUI Grid constants:
+CLIENT_ROW = 0
+SERVER_ROW = 1
+BROWSER_ROW = 2
 
 #instance for a Festiphus session:
 class Festiphus(Frame):
@@ -71,11 +77,7 @@ class Festiphus(Frame):
         
         #The relative name of the first selected item:
         #TODO: make sure it's a dir and not a file
-        #target_dir = self.current_session.pwd() + '/' + cur_selected[0]
-        target_dir = self.file_browser.get(cur_selected[0])
-        
-        #test--alert the name of the target_dir:
-        tkMessageBox.showinfo("new dir name", target_dir)
+        target_dir = self.file_browser.get(cur_selected[0]))
         
         #Move to the given dir:
         self.cd(target_dir, self.current_session)
@@ -106,9 +108,6 @@ class Festiphus(Frame):
         new_pass = self.new_pass_input.get()
         self.authorizer.add_user(new_name, new_pass, 'ftproot')
         
-        #Alert that the new user has been added:
-        tkMessageBox.showinfo('Alert', 'New user added')
-    
 
     ################GUI######################
     #Build the widgets
@@ -117,70 +116,59 @@ class Festiphus(Frame):
         ##Client Control
         #host entry:
         self.host_input = Entry(self)
-        self.host_input.grid(column = 0, row = 0)
+        self.host_input.grid(column = 0, row = CLIENT_ROW)
         
         #port entry:
         self.port_input = Entry(self)
-        self.port_input.grid(column = 1, row = 0)
+        self.port_input.grid(column = 1, row = CLIENT_ROW)
 
         #name entry:
         self.name_input = Entry(self)
-        self.name_input.grid(column = 2, row = 0)
+        self.name_input.grid(column = 2, row = CLIENT_ROW)
 
         #password entry:
         self.password_input = Entry(self, show = '*')
-        self.password_input.grid(column = 3, row = 0)
+        self.password_input.grid(column = 3, row = CLIENT_ROW)
         
         #connect button:
         self.connect_button = Button(self, text = 'Connect',
                                      command = self.submit_connection)
-        self.connect_button.grid(column = 4, row = 0)
+        self.connect_button.grid(column = 4, row = CLIENT_ROW)
         
         ##Server Control
         #new name entry:
         self.new_name_input = Entry(self)
-        self.new_name_input.grid(column = 0, row = 1)
+        self.new_name_input.grid(column = 0, row = SERVER_ROW)
         
         #new password entry:
         self.new_pass_input = Entry(self)
-        self.new_pass_input.grid(column = 1, row = 1)
+        self.new_pass_input.grid(column = 1, row = SERVER_ROW)
         
         #add new user button:
         self.new_user_button = Button(self, text = 'Add New User',
                                       command = self.add_user)
-        self.new_user_button.grid(column = 2, row = 1)
+        self.new_user_button.grid(column = 2, row = SERVER_ROW)
 
         #current directory:
         self.current_dir = StringVar() #dir_label will follow this
         self.dir_label = Label(self, textvariable = self.current_dir)
-        self.dir_label.grid(row = 2)
+        self.dir_label.grid(row = BROWSER_ROW)
 
         ##file browser:
         #window:
         self.file_browser = Listbox(self)
-        self.file_browser.grid(columnspan = 4, column = 0, row = 2)
+        self.file_browser.grid(columnspan = 4, column = 0, row = SERVER_ROW)
         
         #change dir button:
         self.change_dir_button = Button(self, text = 'Change Directory',
                                         command = self.submit_directory)
-        self.change_dir_button.grid(column = 4, row = 2)
+        self.change_dir_button.grid(column = 4, row = SERVER_ROW)
     
     ###################Fire it up!#################
     def __init__(self, master = None):
-    
-        #Put the server in its own thread:
-        #class Server_Thread(Thread):
-        #    def __init__(self, parent):
-        #        self.parent = parent
-        #
-        #    def run(self):
-        #        parent.start_server()
-        
         
         self.server_thread = Thread(target = self.start_server)
         self.server_thread.daemon = True
-        #self.server_thread = Server_Thread()
-        #self.server_thread.__init__(self)
         #Start the server:
         self.server_thread.start()
         
