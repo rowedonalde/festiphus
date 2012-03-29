@@ -109,7 +109,7 @@ class Festiphus(Frame):
         #add the user based on the second row of entries:
         new_name = self.new_name_input.get()
         new_pass = self.new_pass_input.get()
-        self.authorizer.add_user(new_name, new_pass, '/')
+        self.authorizer.add_user(new_name, new_pass, 'ftproot')
         
 
     ################GUI######################
@@ -192,6 +192,11 @@ class Festiphus(Frame):
         self.remote_dir_label = Label(self, textvariable = self.current_remote_dir)
         self.remote_dir_label.grid(row = BROWSER_LABEL_ROW)
         
+        #Enable double-click selection:
+        #For some reason this needs to be a lambda per
+        #http://codeidol.com/community/python/listboxes-and-scrollbars/17568/
+        self.remote_browser.bind("<Double-1>", 
+                                 (lambda event: self.submit_remote_directory()))
         
         
         ##change remote dir button:
