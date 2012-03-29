@@ -61,7 +61,7 @@ class Festiphus(Frame):
             self.refresh_local_browser()
         #Otherwise, it's a file, so upload it if possible:
         else:
-            self.current_session.storbinary("STOR", cur_selected)
+            self.current_session.storbinary("STOR " + cur_selected, open(cur_selected))
     
     
     ###############REMOTE#################
@@ -165,7 +165,9 @@ class Festiphus(Frame):
         #add the user based on the second row of entries:
         new_name = self.new_name_input.get()
         new_pass = self.new_pass_input.get()
-        self.authorizer.add_user(new_name, new_pass, '/')
+        self.authorizer.add_user(new_name, new_pass,
+                                 self.app_start_dir+'/ftproot',
+                                 perm = 'elrw')
         
         #clear out the boxes:
         self.new_name_input.delete(0, END)
@@ -290,6 +292,8 @@ class Festiphus(Frame):
     def __init__(self, master = None):
     
         ##Set up local variables:
+        #Start location:
+        self.app_start_dir = os.getcwd()
         #User home dir:
         self.local_user_home = os.environ['HOME']
         os.chdir(self.local_user_home)
