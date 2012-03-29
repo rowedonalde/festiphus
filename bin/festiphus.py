@@ -135,11 +135,19 @@ class Festiphus(Frame):
         cur_selected = self.remote_browser.curselection()
         
         #The relative name of the first selected item:
-        #TODO: make sure it's a dir and not a file
-        target_dir = self.remote_browser.get(cur_selected[0])
+        target = self.remote_browser.get(cur_selected[0])
         
-        #Move to the given dir:
-        self.remote_cd(target_dir, self.current_session)
+        #If target ends in a slash, it's a directory:
+        if target[-1] == '/' or target == '..':
+            #Move to the given dir:
+            self.remote_cd(target, self.current_session)
+        #Otherwise, it's a file, so download it:
+        else:
+            #If a file by the name doesn't already exist, open
+            #a blank file by the name of the one to be downloaded:
+            new_file = open(target, 'w')
+            
+            self.current_session.retrbinary("RETR " + target, new_file.write)
     
     
     #################Server#################
