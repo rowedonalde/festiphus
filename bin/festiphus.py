@@ -77,7 +77,7 @@ class Festiphus(Frame):
         
         #The relative name of the first selected item:
         #TODO: make sure it's a dir and not a file
-        target_dir = self.file_browser.get(cur_selected[0]))
+        target_dir = self.file_browser.get(cur_selected[0])
         
         #Move to the given dir:
         self.cd(target_dir, self.current_session)
@@ -106,7 +106,7 @@ class Festiphus(Frame):
         #add the user based on the second row of entries:
         new_name = self.new_name_input.get()
         new_pass = self.new_pass_input.get()
-        self.authorizer.add_user(new_name, new_pass, 'ftproot')
+        self.authorizer.add_user(new_name, new_pass, '/')
         
 
     ################GUI######################
@@ -157,12 +157,12 @@ class Festiphus(Frame):
         ##file browser:
         #window:
         self.file_browser = Listbox(self)
-        self.file_browser.grid(columnspan = 4, column = 0, row = SERVER_ROW)
+        self.file_browser.grid(columnspan = 4, column = 0, row = BROWSER_ROW)
         
         #change dir button:
         self.change_dir_button = Button(self, text = 'Change Directory',
                                         command = self.submit_directory)
-        self.change_dir_button.grid(column = 4, row = SERVER_ROW)
+        self.change_dir_button.grid(column = 4, row = BROWSER_ROW)
     
     ###################Fire it up!#################
     def __init__(self, master = None):
