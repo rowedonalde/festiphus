@@ -6,6 +6,10 @@ import tkMessageBox
 import ftplib
 from pyftpdlib import ftpserver
 from threading import Thread
+import os
+
+#Environment variables:
+user_home = os.environ['HOME'] #only works in *nix, windows has HOMEPATH
 
 #Server setting constants:
 SERVER_IP = '127.0.0.1'
@@ -21,7 +25,14 @@ BROWSER_ROW = 5
 
 #instance for a Festiphus session:
 class Festiphus(Frame):
-
+    ###############LOCAL##################
+    #Refresh local browser based on current working dir:
+    def refresh_local_browser(self):
+        #init current working dir to cwd:
+        self.current_local_dir.set(os.getcwd())
+    
+    
+    ###############REMOTE#################
     ###############Client#################
     #FTP sessions in this instance of Festiphus
     #At first, I'll support 1, but this should be able to grow
@@ -49,7 +60,7 @@ class Festiphus(Frame):
         password = self.password_input.get()
         self.open_connection(host, port, name, password)
 
-    #Refresh the file browser and the directory name:
+    #Refresh the remote file browser and the directory name:
     def refresh_remote_browser(self, conn):
         #Set the new current directory:
         self.current_remote_dir.set(conn.pwd())
@@ -124,6 +135,10 @@ class Festiphus(Frame):
         new_pass = self.new_pass_input.get()
         self.authorizer.add_user(new_name, new_pass, '/')
         
+        #clear out the boxes:
+        self.new_name_input.delete(0, END)
+        self.new_pass_input.delete(0, END)
+        
 
     ################GUI######################
     #Build the widgets
@@ -183,27 +198,47 @@ class Festiphus(Frame):
                                       command = self.add_user)
         self.new_user_button.grid(column = 2, row = SERVER_ROW)
         
+        
+        ##local file browser:
+        #scrollbar:
+        self.local_browser_scrollbar = Scrollbar(self)
+        
+        #window:
+        self.local_browser = Listbox(self,
+                                     yscrollcommand = self.local_browser_scrollbar.set)
+        self.local_browser.grid(column = 0, row = BROWSER_ROW)
+        
+        #initialize scrollbar:
+        self.local_browser_scrollbar.grid(column = 1, row = BROWSER_ROW,
+                                          sticky = N+S+W)
+        self.local_browser_scrollbar.config(command = self.local_browser.yview)
+        
+        #current directory label:
+        self.current_local_dir = StringVar() #local_dir_label will follow this
+        self.local_dir_label = Label(self, textvariable = self.current_local_dir)
+        self.local_dir_label.grid(row = BROWSER_LABEL_ROW, column = 0)
+        
+        #Enable double-click selection:
+        
 
         ##remote file browser:
         #scrollbar:
         self.remote_browser_scrollbar = Scrollbar(self)
         
-        
         #window:
         self.remote_browser = Listbox(self, 
                                       yscrollcommand = self.remote_browser_scrollbar.set)
-        #self.remote_browser.grid(columnspan = 4, column = 0, row = BROWSER_ROW)
-        self.remote_browser.grid(column = 0, row = BROWSER_ROW)
+        self.remote_browser.grid(column = 2, row = BROWSER_ROW)
         
         #initialize scrollbar:
-        self.remote_browser_scrollbar.grid(column = 1, row = BROWSER_ROW,
+        self.remote_browser_scrollbar.grid(column = 3, row = BROWSER_ROW,
                                            sticky = N+S+W)
         self.remote_browser_scrollbar.config(command = self.remote_browser.yview)
         
         #current directory label:
         self.current_remote_dir = StringVar() #remote_dir_label will follow this
         self.remote_dir_label = Label(self, textvariable = self.current_remote_dir)
-        self.remote_dir_label.grid(row = BROWSER_LABEL_ROW)
+        self.remote_dir_label.grid(row = BROWSER_LABEL_ROW, column = 2)
         
         #Enable double-click selection:
         #For some reason this needs to be a lambda per
@@ -219,17 +254,25 @@ class Festiphus(Frame):
     
     ###################Fire it up!#################
     def __init__(self, master = None):
-        
+    
+        ##Set up local variables:
+        #User home dir:
+        self.local_user_home = os.environ['HOME']
+        os.chdir(self.local_user_home)
+    
+    
+        ##Set up server
         self.server_thread = Thread(target = self.start_server)
         self.server_thread.daemon = True
         #Start the server:
         self.server_thread.start()
         
         
-        #Initialize GUI
+        ##Initialize GUI
         Frame.__init__(self, master)
         self.grid()
         self.createWidgets()
+        self.refresh_local_browser()
             
 
 app = Festiphus()
