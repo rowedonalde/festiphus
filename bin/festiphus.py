@@ -8,9 +8,6 @@ from pyftpdlib import ftpserver
 from threading import Thread
 import os
 
-#Environment variables:
-user_home = os.environ['HOME'] #only works in *nix, windows has HOMEPATH
-
 #Server setting constants:
 SERVER_IP = '127.0.0.1'
 SERVER_PORT = 3001
@@ -28,8 +25,43 @@ class Festiphus(Frame):
     ###############LOCAL##################
     #Refresh local browser based on current working dir:
     def refresh_local_browser(self):
-        #init current working dir to cwd:
+        #refresh the label above the local browser:
         self.current_local_dir.set(os.getcwd())
+        
+        #clear out the current list:
+        self.local_browser.delete(0, END)
+        
+        ##Display the files and dirs in the current dir:
+        file_list = os.listdir(os.getcwd())
+        
+        #if this isn't the root dir, put a dir link to up one level:
+        if os.getcwd() != '/':
+            self.local_browser.insert(0, '..')
+        
+        for name in file_list:
+            #Add a slash to the end of the name if it's a dir:
+            if os.path.isdir(name):
+                name += '/'
+            #Put name on the file list:    
+            self.local_browser.insert(END, name)
+    
+    #Handles interaction with the local browser.
+    #Determines whether the selected item is a file or directory
+    #and routes to the correct method.
+    def local_handler(self):
+        #Get the currently selected item:
+        cur_selected_index = self.local_browser.curselection()
+        #print "cur_selected:", cur_selected
+        cur_selected = self.local_browser.get(cur_selected_index[0])
+        
+        #If the current item ends in a slash, it's a directory,
+        #so change the local working directory and refresh the display:
+        if cur_selected[-1] == '/' or cur_selected == '..':
+            os.chdir(cur_selected)
+            self.refresh_local_browser()
+        #Otherwise, it's a file, so upload it if possible:
+        else:
+            self.current_session.storbinary("STOR", cur_selected)
     
     
     ###############REMOTE#################
@@ -90,7 +122,7 @@ class Festiphus(Frame):
             self.remote_browser.insert(END, name)
         
     #Move the working directory to the given dir in the given connection:
-    def cd(self, directory, conn):
+    def remote_cd(self, directory, conn):
         #move to the given dir:
         conn.cwd(directory)
         
@@ -107,7 +139,7 @@ class Festiphus(Frame):
         target_dir = self.remote_browser.get(cur_selected[0])
         
         #Move to the given dir:
-        self.cd(target_dir, self.current_session)
+        self.remote_cd(target_dir, self.current_session)
     
     
     #################Server#################
@@ -219,6 +251,8 @@ class Festiphus(Frame):
         self.local_dir_label.grid(row = BROWSER_LABEL_ROW, column = 0)
         
         #Enable double-click selection:
+        self.local_browser.bind("<Double-1>", 
+                                 (lambda event: self.local_handler()))
         
 
         ##remote file browser:
