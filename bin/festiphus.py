@@ -57,13 +57,26 @@ class Festiphus(Frame):
         #clear out the current list:
         self.remote_browser.delete(0, END)
 
-        #display the directory contents:
-        self.file_list = conn.nlst() #debating whether this should be in class
+        ##display the directory contents:
+        #retrieve an array of just the file names:
+        simple_file_list = conn.nlst()
+        
+        ##Determine what is a dir vs. what is a file:
+        #Get a more detailed array from which we can determine whether a
+        #listing is a file or a directory:
+        long_file_list = []
+        conn.dir(long_file_list.append)
+        
         #if this isn't the root dir, put a dir link to up one level:
         if conn.pwd() != '/':
             self.remote_browser.insert(0, '..')
-        for f in self.file_list:
-            self.remote_browser.insert(END, f)
+        
+        #List all the files and directories:
+        for index, name in enumerate(simple_file_list):
+            #If the current name is that of a directory, add a slash:
+            if long_file_list[index][0] == 'd':
+                name += '/'
+            self.remote_browser.insert(END, name)
         
     #Move the working directory to the given dir in the given connection:
     def cd(self, directory, conn):
@@ -109,7 +122,7 @@ class Festiphus(Frame):
         #add the user based on the second row of entries:
         new_name = self.new_name_input.get()
         new_pass = self.new_pass_input.get()
-        self.authorizer.add_user(new_name, new_pass, 'ftproot')
+        self.authorizer.add_user(new_name, new_pass, '/')
         
 
     ################GUI######################
