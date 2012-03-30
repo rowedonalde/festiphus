@@ -26,7 +26,7 @@ class Festiphus(Frame):
     #Refresh local browser based on current working dir:
     def refresh_local_browser(self):
         #refresh the label above the local browser:
-        self.current_local_dir.set(os.getcwd())
+        self.current_local_dir.set("Local:\n" + os.getcwd())
         
         #clear out the current list:
         self.local_browser.delete(0, END)
@@ -95,7 +95,7 @@ class Festiphus(Frame):
     #Refresh the remote file browser and the directory name:
     def refresh_remote_browser(self, conn):
         #Set the new current directory:
-        self.current_remote_dir.set(conn.pwd())
+        self.current_remote_dir.set("Remote:\n" + conn.pwd())
         
         #clear out the current list:
         self.remote_browser.delete(0, END)
@@ -289,12 +289,7 @@ class Festiphus(Frame):
         #http://codeidol.com/community/python/listboxes-and-scrollbars/17568/
         self.remote_browser.bind("<Double-1>", 
                                  (lambda event: self.submit_remote_directory()))
-        
-        
-        ##change remote dir button:
-        self.change_remote_dir_button = Button(self, text = 'Change Directory',
-                                        command = self.submit_remote_directory)
-        self.change_remote_dir_button.grid(column = 4, row = BROWSER_ROW)
+
     
     ###################Fire it up!#################
     def __init__(self, master = None):
