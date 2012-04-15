@@ -9,8 +9,12 @@ from threading import Thread
 import os
 
 #Server setting constants:
-SERVER_IP = '127.0.0.1'
+SERVER_IP = '192.168.1.5'
+#SERVER_IP = '127.0.0.1'
+#SERVER_IP = '76.87.59.21'
+#SERVER_IP = 'localhost'
 SERVER_PORT = 3001
+#SERVER_PORT = 21
 
 #GUI Grid constants:
 CLIENT_LABEL_ROW = 0
@@ -161,6 +165,9 @@ class Festiphus(Frame):
         #This user can read and move around--that's pretty much it
         #Set up the handler and provide it with the previous authorizer:
         handler = ftpserver.FTPHandler
+        #set to work behind a NAT:
+        handler.masquerade_address = '76.87.59.21' #this needs to be whatever the public ip is
+        handler.passive_ports = [3000]
         handler.authorizer = self.authorizer
         address = (SERVER_IP, SERVER_PORT)
         
