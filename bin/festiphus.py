@@ -16,6 +16,7 @@ SERVER_PORT = 3001
 #nameserver setting constants:
 NS_DOMAIN = 'my.cs.lmu.edu:4000'
 NS_REGISTER = '/reg'
+NS_GETIP = '/myip'
 
 #GUI Grid constants:
 CLIENT_LABEL_ROW = 0
@@ -178,7 +179,7 @@ class Festiphus(Frame):
         ##set to work behind a NAT:
         #Get external address from nameserver:
         h1 = httplib.HTTPConnection(NS_DOMAIN)
-        h1.request('GET', NS_REGISTER)
+        h1.request('GET', NS_GETIP)
         h1_res = h1.getresponse()
         handler.masquerade_address = h1_res.read()
         print 'Current public IP:', handler.masquerade_address
