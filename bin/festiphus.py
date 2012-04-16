@@ -7,10 +7,15 @@ import ftplib
 from pyftpdlib import ftpserver
 from threading import Thread
 import os
+import httplib
 
 #Server setting constants:
 SERVER_IP = ''
 SERVER_PORT = 3001
+
+#nameserver setting constants:
+NS_DOMAIN = 'my.cs.lmu.edu:4000'
+NS_REGISTER = '/reg'
 
 #GUI Grid constants:
 CLIENT_LABEL_ROW = 0
@@ -161,9 +166,16 @@ class Festiphus(Frame):
         #This user can read and move around--that's pretty much it
         #Set up the handler and provide it with the previous authorizer:
         handler = ftpserver.FTPHandler
-        #set to work behind a NAT:
-        handler.masquerade_address = '76.87.59.21' #this needs to be whatever the public ip is
+        
+        ##set to work behind a NAT:
+        #Get external address from nameserver:
+        h1 = httplib.HTTPConnection(NS_DOMAIN)
+        h1.request('GET', NS_REGISTER)
+        h1_res = h1.getresponse()
+        handler.masquerade_address = h1_res.read()
+        #Set Passive data connection port constraints:
         handler.passive_ports = [3000]
+        
         handler.authorizer = self.authorizer
         address = (SERVER_IP, SERVER_PORT)
         
