@@ -9,12 +9,8 @@ from threading import Thread
 import os
 
 #Server setting constants:
-SERVER_IP = '192.168.1.5'
-#SERVER_IP = '127.0.0.1'
-#SERVER_IP = '76.87.59.21'
-#SERVER_IP = 'localhost'
+SERVER_IP = ''
 SERVER_PORT = 3001
-#SERVER_PORT = 21
 
 #GUI Grid constants:
 CLIENT_LABEL_ROW = 0
