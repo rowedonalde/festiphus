@@ -173,6 +173,7 @@ class Festiphus(Frame):
         h1.request('GET', NS_REGISTER)
         h1_res = h1.getresponse()
         handler.masquerade_address = h1_res.read()
+        print 'Current public IP:', handler.masquerade_address
         #Set Passive data connection port constraints:
         handler.passive_ports = [3000]
         
