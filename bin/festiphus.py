@@ -70,7 +70,15 @@ class Festiphus(Frame):
     
     
     ###############REMOTE#################
+    #############Nameserver###############
+    
+    #Prompt user to log into the nameserver:
+    #def ns_login(self
+    #Actually, I'll try to handle this in a dialog module
+    
+    
     ###############Client#################
+    
     #FTP sessions in this instance of Festiphus
     #At first, I'll support 1, but this should be able to grow
     sessions = []
@@ -333,5 +341,5 @@ class Festiphus(Frame):
             
 
 app = Festiphus()
-app.master.title("Festiphus")
+app.master.title("FesTiPhus")
 app.mainloop()
