@@ -18,6 +18,7 @@ SERVER_PORT = 3001
 NS_DOMAIN = 'my.cs.lmu.edu:4000'
 NS_REGISTER = '/reg'
 NS_GETIP = '/myip'
+NS_GETREMOTE = '/whereis'
 
 #GUI Grid constants:
 CLIENT_LABEL_ROW = 0
@@ -72,10 +73,6 @@ class Festiphus(Frame):
     
     
     ###############REMOTE#################
-    #############Nameserver###############
-    
-    #Prompt user to log into the nameserver:
-    
     
     
     ###############Client#################
@@ -110,7 +107,7 @@ class Festiphus(Frame):
         
         #when the user has picked a good name, push it:
         
-        h1.request('POST', NS_REGISTER + '/' + self.username)
+        h1.request('POST', NS_REGISTER + '/' + self.username + '/' + str(SERVER_PORT))
         res = h1.getresponse()
         print res.status
         
@@ -128,9 +125,19 @@ class Festiphus(Frame):
 
     #Use the input to trigger an open_connection:
     def submit_connection(self):
-        host = self.host_input.get()
-        port = self.port_input.get()
         name = self.name_input.get()
+        
+        #First, get the user's address and server port:
+        h1 = httplib.HTTPConnection(self.domain)
+        h1.request('GET', NS_GETREMOTE + '/' + name)
+        res = h1.getresponse()
+        remote_address = res.read().partition(':')
+        host = remote_address[0]
+        port = remote_address[2]
+    
+        #host = self.host_input.get()
+        #port = self.port_input.get()
+        
         password = self.password_input.get()
         self.open_connection(host, port, name, password)
 
@@ -246,37 +253,37 @@ class Festiphus(Frame):
         
         ##Client Control
         #host entry:
-        self.host_input = Entry(self)
-        self.host_input.grid(column = 0, row = CLIENT_ROW)
+        #self.host_input = Entry(self)
+        #self.host_input.grid(column = 0, row = CLIENT_ROW)
         #label:
-        self.host_input_label = Label(self, text = "Host:")
-        self.host_input_label.grid(column = 0, row = CLIENT_LABEL_ROW)
+        #self.host_input_label = Label(self, text = "Host:")
+        #self.host_input_label.grid(column = 0, row = CLIENT_LABEL_ROW)
         
         #port entry:
-        self.port_input = Entry(self)
-        self.port_input.grid(column = 1, row = CLIENT_ROW)
+        #self.port_input = Entry(self)
+        #self.port_input.grid(column = 1, row = CLIENT_ROW)
         #label:
-        self.port_input_label = Label(self, text = "Port:")
-        self.port_input_label.grid(column = 1, row = CLIENT_LABEL_ROW)
+        #self.port_input_label = Label(self, text = "Port:")
+        #self.port_input_label.grid(column = 1, row = CLIENT_LABEL_ROW)
 
         #name entry:
         self.name_input = Entry(self)
-        self.name_input.grid(column = 2, row = CLIENT_ROW)
+        self.name_input.grid(column = 0, row = CLIENT_ROW)
         #label:
-        self.name_input_label = Label(self, text = "Name:")
-        self.name_input_label.grid(column = 2, row = CLIENT_LABEL_ROW)
+        self.name_input_label = Label(self, text = "Remote User's Name:")
+        self.name_input_label.grid(column = 0, row = CLIENT_LABEL_ROW)
 
         #password entry:
         self.password_input = Entry(self, show = '*')
-        self.password_input.grid(column = 3, row = CLIENT_ROW)
+        self.password_input.grid(column = 1, row = CLIENT_ROW)
         #label:
         self.password_input_label = Label(self, text = "Password:")
-        self.password_input_label.grid(column = 3, row = CLIENT_LABEL_ROW)
+        self.password_input_label.grid(column = 1, row = CLIENT_LABEL_ROW)
         
         #connect button:
         self.connect_button = Button(self, text = 'Connect',
                                      command = self.submit_connection)
-        self.connect_button.grid(column = 4, row = CLIENT_ROW)
+        self.connect_button.grid(column = 2, row = CLIENT_ROW)
         
         ##Server Control
         #new name entry:
