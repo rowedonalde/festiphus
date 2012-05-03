@@ -1,0 +1,27 @@
+Welcome to FesTiPhus--FTP for the rest of us!
+
+To install FesTiPhus on your Linux box:
+
+1. Clone this repo or download and unpack the zip
+2. Open up a terminal and say:
+   pip install pyftpdlib
+3. If you're behind a network address translator (you probably are) you'll need to
+   set port forwarding on your router. For the external start and end ports, choose
+   ports 3000 and 3001, respectively. Choose the same for the internal start and end
+   ports. For the internal IP address, choose the LAN address of your machine
+   (probably beginning with 192.168.1--use ifconfig to find it). (PNP port forwarding
+   coming soon!)
+4. There's no step 4!
+
+Using Festiphus:
+1. In the terminal, cd to wherever you unzipped or cloned the project and say:
+   python bin/festiphus.py
+2. You'll be greeted with two dialog boxes in succession. In the first, state your
+   FesTiPhus nameserver (most likely the default) and in the second, the username
+   you'd like to pick.
+3. To grant access to a user, type their username and a password in the second row
+   of inputs. (To communicate this information, I've found cans and a string work
+   well.) Files you want to share with them should be placed in the folder
+   bin/ftproot
+4. To log into someone else's ftp folder, input their name and the password they set
+   for you in the first row of boxes. Hit connect.
