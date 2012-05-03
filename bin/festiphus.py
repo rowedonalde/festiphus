@@ -134,9 +134,6 @@ class Festiphus(Frame):
         remote_address = res.read().partition(':')
         host = remote_address[0]
         port = remote_address[2]
-    
-        #host = self.host_input.get()
-        #port = self.port_input.get()
         
         password = self.password_input.get()
         self.open_connection(host, port, name, password)
@@ -216,11 +213,7 @@ class Festiphus(Frame):
         #h1 = httplib.HTTPConnection(NS_DOMAIN)
         h1 = httplib.HTTPConnection(self.domain)
         h1.request('GET', NS_GETIP)
-        #print self.ns_connection
-        #self.ns_connection.request('GET', NS_GETIP)
         res = h1.getresponse()
-        #res = self.ns_connection.getresponse()
-        #h1.close()
         handler.masquerade_address = res.read()
         print 'Current public IP:', handler.masquerade_address
         #Set Passive data connection port constraints:
@@ -252,19 +245,6 @@ class Festiphus(Frame):
     def createWidgets(self):
         
         ##Client Control
-        #host entry:
-        #self.host_input = Entry(self)
-        #self.host_input.grid(column = 0, row = CLIENT_ROW)
-        #label:
-        #self.host_input_label = Label(self, text = "Host:")
-        #self.host_input_label.grid(column = 0, row = CLIENT_LABEL_ROW)
-        
-        #port entry:
-        #self.port_input = Entry(self)
-        #self.port_input.grid(column = 1, row = CLIENT_ROW)
-        #label:
-        #self.port_input_label = Label(self, text = "Port:")
-        #self.port_input_label.grid(column = 1, row = CLIENT_LABEL_ROW)
 
         #name entry:
         self.name_input = Entry(self)
