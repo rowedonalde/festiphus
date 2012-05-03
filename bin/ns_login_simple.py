@@ -52,5 +52,10 @@ class Login_Dialog(tkSimpleDialog.Dialog):
     def validate(self):
         #TODO: actually check format of username and domain
         
-        #Check to see whether 
+        return True
+        
+    def apply(self):
+        None
+    
+
     
