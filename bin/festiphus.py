@@ -3,6 +3,7 @@
 
 from Tkinter import *
 import tkMessageBox
+import tkSimpleDialog
 import ftplib
 from pyftpdlib import ftpserver
 from threading import Thread
@@ -74,8 +75,7 @@ class Festiphus(Frame):
     #############Nameserver###############
     
     #Prompt user to log into the nameserver:
-    #def ns_login(self
-    #Actually, I'll try to handle this in a dialog module
+    
     
     
     ###############Client#################
@@ -86,6 +86,34 @@ class Festiphus(Frame):
     
     #The currently active session in the window:
     current_session = None
+    
+    #Register with the nameserver:
+    def register(self):
+        #First, check to make sure that the name is available:
+        name_is_available = False
+        h1 = httplib.HTTPConnection(self.domain)
+        h1.request('GET', NS_REGISTER + '/' + self.username)
+        res = h1.getresponse()
+        res.read()
+        if res.status == 200:
+            name_is_available = True
+        
+        while not name_is_available:
+            self.username = tkSimpleDialog.askstring('Connect to the FesTiPhus network',
+                                                 'Sorry, but that name is taken. Please select Another.')
+            h1.request('GET', NS_REGISTER + '/' + self.username)
+            res = h1.getresponse()
+            res.read()
+            if res.status == 200:
+                name_is_available = True
+        
+        
+        #when the user has picked a good name, push it:
+        
+        h1.request('POST', NS_REGISTER + '/' + self.username)
+        res = h1.getresponse()
+        print res.status
+        
 
     #Initiate an FTP connection:
     def open_connection(self, host, port, name, password):
@@ -178,10 +206,15 @@ class Festiphus(Frame):
         
         ##set to work behind a NAT:
         #Get external address from nameserver:
-        h1 = httplib.HTTPConnection(NS_DOMAIN)
+        #h1 = httplib.HTTPConnection(NS_DOMAIN)
+        h1 = httplib.HTTPConnection(self.domain)
         h1.request('GET', NS_GETIP)
-        h1_res = h1.getresponse()
-        handler.masquerade_address = h1_res.read()
+        #print self.ns_connection
+        #self.ns_connection.request('GET', NS_GETIP)
+        res = h1.getresponse()
+        #res = self.ns_connection.getresponse()
+        #h1.close()
+        handler.masquerade_address = res.read()
         print 'Current public IP:', handler.masquerade_address
         #Set Passive data connection port constraints:
         handler.passive_ports = [3000]
@@ -325,20 +358,29 @@ class Festiphus(Frame):
         #User home dir:
         self.local_user_home = os.environ['HOME']
         os.chdir(self.local_user_home)
-    
-    
-        ##Set up server
-        self.server_thread = Thread(target = self.start_server)
-        self.server_thread.daemon = True
-        #Start the server:
-        self.server_thread.start()
-        
         
         ##Initialize GUI
         Frame.__init__(self, master)
         self.grid()
         self.createWidgets()
         self.refresh_local_browser()
+        
+        ##Prompt for domain and username
+        self.domain = tkSimpleDialog.askstring('Connect to the FesTiPhus network',
+                                               'What is the address of the nameserver?',
+                                               initialvalue = NS_DOMAIN)
+        self.username = tkSimpleDialog.askstring('Connect to the FesTiPhus network',
+                                                 'What is your username?')
+        
+                                               
+        ##Set up server
+        self.server_thread = Thread(target = self.start_server)
+        self.server_thread.daemon = True
+        #Start the server:
+        self.server_thread.start()
+        
+        #register with ns:
+        self.register()
             
 
 app = Festiphus()
