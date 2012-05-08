@@ -12,7 +12,7 @@ import httplib
 
 #Server setting constants:
 SERVER_IP = ''
-SERVER_PORT = 3001
+SERVER_PORT = 4001
 
 #nameserver setting constants:
 NS_DOMAIN = 'my.cs.lmu.edu:4000'
