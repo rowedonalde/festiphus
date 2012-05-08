@@ -343,7 +343,7 @@ class Festiphus(Frame):
         #Start location:
         self.app_start_dir = os.getcwd()
         #User home dir:
-        self.local_user_home = os.environ['HOME']
+        self.local_user_home = os.environ['HOMEPATH']
         os.chdir(self.local_user_home)
         
         ##Initialize GUI
