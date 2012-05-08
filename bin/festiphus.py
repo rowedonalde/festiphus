@@ -125,18 +125,21 @@ class Festiphus(Frame):
 
     #Use the input to trigger an open_connection:
     def submit_connection(self):
-        name = self.name_input.get()
+        #name = self.name_input.get()
+        myname = self.username
+        #test:
+        print "name:", myname
         
         #First, get the user's address and server port:
         h1 = httplib.HTTPConnection(self.domain)
-        h1.request('GET', NS_GETREMOTE + '/' + name)
+        h1.request('GET', NS_GETREMOTE + '/' + self.name_input.get())
         res = h1.getresponse()
         remote_address = res.read().partition(':')
         host = remote_address[0]
         port = remote_address[2]
         
         password = self.password_input.get()
-        self.open_connection(host, port, name, password)
+        self.open_connection(host, port, myname, password)
 
     #Refresh the remote file browser and the directory name:
     def refresh_remote_browser(self, conn):
@@ -217,7 +220,7 @@ class Festiphus(Frame):
         handler.masquerade_address = res.read()
         print 'Current public IP:', handler.masquerade_address
         #Set Passive data connection port constraints:
-        handler.passive_ports = [3000]
+        handler.passive_ports = [4000]
         
         handler.authorizer = self.authorizer
         address = (SERVER_IP, SERVER_PORT)
@@ -232,7 +235,7 @@ class Festiphus(Frame):
         new_name = self.new_name_input.get()
         new_pass = self.new_pass_input.get()
         self.authorizer.add_user(new_name, new_pass,
-                                 self.app_start_dir+'/ftproot',
+                                 self.app_start_dir+'\\ftproot',
                                  perm = 'elrw')
         
         #clear out the boxes:
@@ -343,7 +346,7 @@ class Festiphus(Frame):
         #Start location:
         self.app_start_dir = os.getcwd()
         #User home dir:
-        self.local_user_home = os.environ['HOMEPATH']
+        self.local_user_home = os.environ['HOMEDRIVE'] + os.environ['HOMEPATH']
         os.chdir(self.local_user_home)
         
         ##Initialize GUI
